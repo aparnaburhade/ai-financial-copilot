@@ -16,6 +16,8 @@ Response:
 - Risk level: Medium
 - Recommendation: Reduce discretionary spending by 10–15% to improve savings
 
+---
+
 ## What Problem Does It Solve?
 
 Most financial tools show numbers but don’t explain what they mean.
@@ -191,4 +193,5 @@ This project demonstrates:
 * Reliable AI (LLM + deterministic tools)
 * Backend system design with FastAPI
 * Real-world financial risk analysis
+
 
