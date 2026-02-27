@@ -1,244 +1,181 @@
-Proactive AI Financial Copilot 
+# Proactive AI Financial Copilot
 
-Proactive AI Financial Copilot is an agent-based backend system that analyzes a user's financial data to detect spending trends, assess financial risk, identify anomalies, and generate actionable recommendations through natural language.
+AI-powered backend that analyzes financial data, detects risks and trends, and generates actionable insights using natural language.
 
-The system combines:
+---
 
-Deterministic financial analysis using Pandas
+## What Problem Does It Solve?
 
-LLM-based intent understanding and explanation
+Most financial tools show numbers but don’t explain what they mean.
 
-FastAPI backend for API access
+This system allows users to ask:
 
-Tool-based agent architecture using LangChain
+* *“Am I spending too much?”*
+* *“Do I have financial risk?”*
+* *“How can I improve my savings?”*
 
-Key principle: The LLM does NOT perform calculations. All financial metrics are computed using Python tools to ensure accuracy and reduce hallucinations.
+and receive **clear, data-driven recommendations**.
 
-Problem Statement
+---
 
-Most financial dashboards show numbers but do not explain what they mean.
+## Key Idea
 
-This system allows users to ask questions like:
+**LLM for reasoning. Python for calculations.**
 
-“Am I spending too much?”
+* LLM → Understands intent & explains results
+* Pandas → Performs all financial calculations
+* Prevents hallucinations and ensures accuracy
 
-“Do I have any financial risk?”
+---
 
-“How can I improve my savings?”
+## Features
 
-And receive clear, actionable insights based on their financial data.
+### Financial Health Analysis
 
-Features
-1. Trend Analysis
+* Income vs Expense summary
+* Expense ratio calculation
+* Month-over-month trends
+* Top spending categories
 
-Latest month spending summary
+### Risk Detection
 
-Income vs expenditure
+* Cashflow risk (expenses > income)
+* High spending ratio alerts
+* EMI burden analysis
+* Overall risk level: **Low / Medium / High**
 
-Expense ratio (%)
+### Proactive Monitoring
 
-Month-over-month spending change
+Run a full financial health scan without asking a question.
 
-Top spending categories
+### Actionable Insights
 
-2. Risk Estimation
+* Savings recommendations
+* Expense control suggestions
+* Debt reduction guidance
 
-Cashflow risk (expenses > income)
+---
 
-High expense ratio detection
+## Tech Stack
 
-EMI burden analysis
+* Python
+* FastAPI
+* Pandas
+* LangChain
+* OpenAI (GPT-4o-mini)
 
-Spending anomaly detection
+---
 
-Overall risk level: Low / Medium / High
-
-3. Financial Insights
-
-Savings improvement suggestions
-
-Expense control recommendations
-
-Debt reduction guidance
-
-Estimated interest savings (proxy)
-
-4. Proactive Monitoring
-
-Runs a full financial health scan without a question
-
-Highlights key risk signals and trends
-
-Tech Stack
-
-Python
-
-FastAPI
-
-Pandas
-
-LangChain
-
-OpenAI (GPT-4o-mini)
-
-Architecture Overview
+## Architecture
 
 User Question + CSV
 → FastAPI
 → LLM (intent understanding via LangChain)
-→ Appropriate Tool Selected
-→ Pandas performs calculations
-→ Structured output returned
-→ LLM generates explanation
-→ Response returned to user
+→ Tool Selection
+→ Pandas Analysis
+→ Structured Result
+→ LLM Explanation
+→ Response
 
-This design ensures:
+---
 
-Accurate calculations
+## Project Structure
 
-Reduced hallucination
-
-Clear and reliable insights
-
-Project Structure
-
+```
 ai-financial-copilot/
 │
-├── app.py # FastAPI endpoints
-├── agent.py # LLM routing and response generation
-├── tools.py # Pandas-based financial analysis logic
+├── app.py
+├── agent.py
+├── tools.py
 ├── data/
-│ └── monthly_spending_dataset_2020_2025.csv
 ├── requirements.txt
 └── README.md
+```
 
-Setup Instructions
-1. Create virtual environment
+---
 
-Windows:
+## Setup
+
+### 1. Create virtual environment
+
+```
 python -m venv .venv
-.venv\Scripts\activate
+.venv\Scripts\activate   # Windows
+```
 
-Mac/Linux:
-python -m venv .venv
-source .venv/bin/activate
+### 2. Install dependencies
 
-2. Install dependencies
-
+```
 pip install -r requirements.txt
+```
 
-3. Set OpenAI API Key
+### 3. Set API key
 
-Windows (PowerShell):
+```
 setx OPENAI_API_KEY "YOUR_API_KEY"
+```
 
-Restart the terminal after running this.
+Restart terminal after setting the key.
 
-Mac/Linux:
-export OPENAI_API_KEY="YOUR_API_KEY"
+---
 
-Running the Application
+## Run the Application
 
+```
 uvicorn app:app --reload
+```
 
-Open Swagger UI:
+Swagger UI:
 
+```
 http://127.0.0.1:8000/docs
+```
 
-API Endpoints
-POST /analyze
+---
 
-Analyzes a user question and routes it to the appropriate financial tool.
+## API Endpoints
 
-Request body:
+**POST /analyze**
 
+```
 {
-"question": "Am I spending too much?",
-"csv_path": "data/monthly_spending_dataset_2020_2025.csv"
+  "question": "Am I spending too much?",
+  "csv_path": "data/sample.csv"
 }
+```
 
-POST /proactive-check
+**POST /proactive-check**
 
-Runs a proactive financial health scan.
-
-Request body:
-
+```
 {
-"csv_path": "data/monthly_spending_dataset_2020_2025.csv"
+  "csv_path": "data/sample.csv"
 }
+```
 
-Dataset Format
+---
 
-The system uses monthly aggregated financial data.
+## Current Limitations
 
-Minimum required columns:
+* Stateless (no persistence)
+* Monthly aggregated data only
+* Rule-based anomaly detection
 
-Month / Date
+---
 
-Income
+## Future Improvements
 
-Total Expenditure
+* PostgreSQL integration
+* Multi-user support
+* Transaction-level analysis
+* Real-time monitoring
 
-Optional:
+---
 
-EMI / Loans
+## Why This Project Matters
 
-Savings
+This project demonstrates:
 
-Category columns (Rent, Groceries, etc.)
-
-The loader automatically normalizes common column name variations.
-
-Why CSV?
-
-This project is a prototype focused on:
-
-Agent architecture
-
-Financial analysis logic
-
-Reliable AI-assisted insights
-
-In production, this would be replaced with:
-
-PostgreSQL database
-
-User authentication
-
-Transaction-level ingestion
-
-Current Limitations
-
-Stateless (no data persistence)
-
-Uses monthly aggregated data (no transaction-level insights)
-
-Rule-based anomaly detection (no predictive ML)
-
-Interest savings is an estimate (no APR/principal details)
-
-Future Improvements
-
-Database integration (PostgreSQL)
-
-Multi-user support
-
-Transaction-level analysis
-
-Real-time monitoring
-
-Caching for performance
-
-Multi-step agent workflows
-
-Why This Project is Agentic
-
-The LLM acts as a decision layer:
-
-Understands user intent
-
-Selects the appropriate analysis tool
-
-Generates a grounded explanation
-
-Instead of fixed rules, the system dynamically decides the next action based on natural language input.
+* Agent-based architecture
+* Reliable AI (LLM + deterministic tools)
+* Backend system design with FastAPI
+* Real-world financial risk analysis
