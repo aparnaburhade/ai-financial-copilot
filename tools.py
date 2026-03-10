@@ -476,6 +476,26 @@ def trend_analysis(csv_path: str) -> Dict[str, Any]:
     total_exp = _safe_float(last.get(TOTAL_EXP_COL))
     income = _safe_float(last.get(INCOME_COL))
 
+    emi = _safe_float(last.get(EMI_COL), default=0.0) if EMI_COL in df.columns else 0.0
+
+    savings_val = None
+    if SAVINGS_COL in df.columns and not pd.isna(last.get(SAVINGS_COL)):
+        savings_val = _safe_float(last.get(SAVINGS_COL), default=0.0)
+    else:
+        if income or total_exp or emi:
+            savings_val = float(income - total_exp - emi)
+
+    expense_ratio = (total_exp / income) if income else 0.0
+    savings_rate = (savings_val / income) if (income and savings_val is not None) else 0.0
+    emi_ratio = (emi / income) if income else 0.0
+
+    metrics = {
+        "expense_ratio": float(expense_ratio),
+        "savings_rate": float(savings_rate),
+        "emi_ratio": float(emi_ratio),
+    }
+    health_score = calculate_financial_health_score(metrics)
+
     mom_change = None
     if prev is not None and not pd.isna(prev[TOTAL_EXP_COL]):
         mom_change = _pct_change(total_exp, _safe_float(prev.get(TOTAL_EXP_COL)))
@@ -499,9 +519,17 @@ def trend_analysis(csv_path: str) -> Dict[str, Any]:
         "month": str(last[MONTH_COL].date()),
         "total_expenditure": round(total_exp, 2),
         "income": round(income, 2),
+        "total_expenditure_latest_month": round(total_exp, 2),
+        "income_latest_month": round(income, 2),
+        "expense_ratio": round(expense_ratio, 4),
+        "savings_rate": round(savings_rate, 4),
+        "emi_ratio": round(emi_ratio, 4),
+        "health_score": int(health_score),
         "expense_ratio_pct": expense_ratio_pct,
         "month_over_month_spend_change_pct": mom_change,
+        "month_over_month_change": mom_change,
         "top_categories_latest_month": top_categories,
+        "top_spending_categories": top_categories,
     }
 
 
