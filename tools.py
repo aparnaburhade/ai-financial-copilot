@@ -443,6 +443,31 @@ def _safe_float(x: Any, default: float = 0.0) -> float:
         return default
 
 
+def calculate_financial_health_score(metrics: Dict[str, float]) -> int:
+    score = 100
+
+    expense_ratio = float(metrics.get("expense_ratio", 0.0))
+    savings_rate = float(metrics.get("savings_rate", 0.0))
+    emi_ratio = float(metrics.get("emi_ratio", 0.0))
+
+    if expense_ratio > 0.8:
+        score -= 25
+    elif expense_ratio > 0.7:
+        score -= 15
+
+    if savings_rate < 0.1:
+        score -= 20
+    elif savings_rate < 0.2:
+        score -= 10
+
+    if emi_ratio > 0.4:
+        score -= 20
+    elif emi_ratio > 0.3:
+        score -= 10
+
+    return max(score, 0)
+
+
 def trend_analysis(csv_path: str) -> Dict[str, Any]:
     df = _load_monthly(csv_path)
     last = df.iloc[-1]
@@ -494,6 +519,22 @@ def risk_estimation(csv_path: str) -> Dict[str, Any]:
         emi = _safe_float(last.get(EMI_COL), default=0.0)
 
     emi_ratio = (emi / income) if income else 0.0
+
+    savings_val = None
+    if SAVINGS_COL in df.columns and not pd.isna(last.get(SAVINGS_COL)):
+        savings_val = _safe_float(last.get(SAVINGS_COL), default=0.0)
+    else:
+        if income or total_exp or emi:
+            savings_val = float(income - total_exp - emi)
+
+    savings_rate = (savings_val / income) if (income and savings_val is not None) else 0.0
+
+    metrics = {
+        "expense_ratio": float(expense_ratio),
+        "savings_rate": float(savings_rate),
+        "emi_ratio": float(emi_ratio),
+    }
+    health_score = calculate_financial_health_score(metrics)
 
     anomalies: List[dict] = []
 
@@ -566,6 +607,10 @@ def risk_estimation(csv_path: str) -> Dict[str, Any]:
         "month": str(last[MONTH_COL].date()),
         "risk_level": risk_level,
         "cashflow_risk": bool(cashflow_risk),
+        "expense_ratio": round(expense_ratio, 4),
+        "savings_rate": round(savings_rate, 4),
+        "emi_ratio": round(emi_ratio, 4),
+        "health_score": int(health_score),
         "expense_ratio_pct": round(expense_ratio * 100, 1) if income else None,
         "anomalies": anomalies[:8],
         "emi_amount_latest_month": round(emi, 2),
