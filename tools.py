@@ -677,6 +677,16 @@ def financial_insights(csv_path: str) -> Dict[str, Any]:
 
     savings_ratio_pct = round((savings_val / income) * 100, 1) if (income and savings_val is not None) else None
 
+    expense_ratio = (total_exp / income) if income else 0.0
+    savings_rate = (savings_val / income) if (income and savings_val is not None) else 0.0
+
+    metrics = {
+        "expense_ratio": float(expense_ratio),
+        "savings_rate": float(savings_rate),
+        "emi_ratio": float(emi_ratio),
+    }
+    health_score = calculate_financial_health_score(metrics)
+
     # MoM savings change (only if we can compute prev savings)
     savings_change_amount = None
     savings_change_pct = None
@@ -747,6 +757,10 @@ def financial_insights(csv_path: str) -> Dict[str, Any]:
         "latest_income": round(income, 2),
         "latest_total_expenditure": round(total_exp, 2),
         "latest_emi_amount": round(emi, 2),
+        "expense_ratio": round(expense_ratio, 4),
+        "savings_rate": round(savings_rate, 4),
+        "emi_ratio": round(emi_ratio, 4),
+        "health_score": int(health_score),
         "emi_ratio_pct_latest_month": round(emi_ratio * 100, 1) if income else None,
         "latest_savings_amount": round(savings_val, 2) if savings_val is not None else None,
         "savings_rate_pct_latest_month": savings_ratio_pct,
